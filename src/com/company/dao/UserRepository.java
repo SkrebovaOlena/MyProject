@@ -1,4 +1,4 @@
-package com.company.service;
+package com.company.dao;
 
 import com.company.view.User;
 import java.util.HashMap;

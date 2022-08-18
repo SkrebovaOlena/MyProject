@@ -1,5 +1,7 @@
 package com.company.service;
 
+import com.company.dao.UserRepository;
+
 import java.util.Scanner;
 
 public class UserService {

@@ -1,6 +1,5 @@
 package com.company;
 
-import com.company.service.UserRepository;
 import com.company.view.Menu;
 
 public class Main {
