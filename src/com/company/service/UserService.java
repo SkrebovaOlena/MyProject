@@ -1,38 +1,73 @@
 package com.company.service;
 
 import com.company.dao.UserRepository;
+import com.company.view.User;
 
 import java.util.Scanner;
 
 public class UserService {
 
-    Scanner scanner = new Scanner(System.in);
+    private UserRepository userRepository;
+    private Scanner scanner = new Scanner(System.in);
 
-    public void loginUser(UserRepository userRepository) {
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User loginUser() {
 
         String username = getUsersName();
         String password = getUsersPassword();
 
-        if (userRepository.checkUser(username)) {
-            System.out.println(username + ", we are glad to see again!");
+        User user = userRepository.getUserByUsername(username);
+
+        if (user == null) {
+            System.out.println(username + ", not found. Please login with another username or register!");
+            return null;
         }
-        else {
-            System.out.println(username + " is not found. Registrate yourself");
-            userRegistration(userRepository);
+
+        if (user.isBlocked()) {
+            System.out.println(username + " is blocked!");
+            return null;
+        } else if (user.getPassword().equals(password)) {
+            System.out.println(username + ", user is successfully logged in!");
+            return user;
+        } else {
+            System.out.println(username + ", entered wrong password, Please try again!");
+            return null;
         }
     }
 
-    public void userRegistration(UserRepository userRepository){
+    public User userRegistration() {
 
         String username = getUsersName();
         String password = getUsersPassword();
 
         if (userRepository.checkUser(username)) {
-            System.out.println(username + " is found, we're glad to see you again!");
-        }
-        else {
-            userRepository.addUser(username, password);
+            System.out.println(username + " already exists, please login!");
+            return null;
+        } else {
+            User user = new User(username, password, false, false);
+            userRepository.addUser(user);
             System.out.println("Registration finished successful");
+            return user;
+        }
+    }
+
+    public void blockUnblockUser() {
+        System.out.println("Please specify username to block/unblock");
+        String username = scanner.nextLine();
+        User user = userRepository.getUserByUsername(username);
+        if (user == null) {
+            System.out.println(username + " doesn't exist");
+            return;
+        }
+
+        user.setBlocked(!user.isBlocked());
+        if (user.isBlocked()) {
+            System.out.println(username + " was successfully blocked");
+        } else {
+            System.out.println(username + " was successfully unblocked");
         }
     }
 
@@ -44,5 +79,9 @@ public class UserService {
     public String getUsersName() {
         System.out.println("Please write your username");
         return scanner.nextLine();
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.getUserByUsername(username);
     }
 }
